@@ -92,12 +92,15 @@ def get_processes():
     processes = []
     for session in AudioUtilities.GetAllSessions():
         if session.Process:
-            ExecutablePath = session.Process.exe()
-            langs = win32api.GetFileVersionInfo(
-                ExecutablePath, r'\VarFileInfo\Translation')
-            key = r'StringFileInfo\%04x%04x\FileDescription' % (
-                langs[0][0], langs[0][1])
-            description = win32api.GetFileVersionInfo(ExecutablePath, key)
+            try:
+                ExecutablePath = session.Process.exe()
+                langs = win32api.GetFileVersionInfo(
+                    ExecutablePath, r'\VarFileInfo\Translation')
+                key = r'StringFileInfo\%04x%04x\FileDescription' % (
+                    langs[0][0], langs[0][1])
+                description = win32api.GetFileVersionInfo(ExecutablePath, key)
+            except:
+                description = ""
             processes.append(
                 (session.ProcessId, session.Process.name(), description))
     return processes
