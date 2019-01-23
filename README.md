@@ -14,3 +14,7 @@ pip install -r requirements.txt
 
 ## Arduino
 1. [HID-Project](https://github.com/NicoHood/HID)
+
+# Pictures
+<img src="https://raw.githubusercontent.com/daniel-luan/hum/master/img/front.jpg" alt="front" width="400"/>
+<img src="https://raw.githubusercontent.com/daniel-luan/hum/master/img/back.jpg" alt="back" width="400"/>
