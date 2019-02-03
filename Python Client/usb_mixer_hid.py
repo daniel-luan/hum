@@ -1,6 +1,8 @@
 import pywinusb.hid as hid
 import AudioController as AC
 from time import sleep
+from pathlib import Path
+import json
 
 LAST_DATA = {}
 PROCESS = {}
@@ -94,6 +96,23 @@ def print_processes(p):
         print(str(process[2]).rjust(des_max_len))
 
 
+def print_list():
+    """
+    Pretty print the list of processes currently bounded.
+
+    """
+    max_len = max([len(process.process_name) for process in PROCESS.values()])
+    begin = "+----+{}+".format("-" * (max_len + 2))
+    print(begin)
+    print("| CH | {}|".format("Name".ljust(max_len+1)))
+    print(begin)
+    print("| 0  | {}|".format("Master Volume".ljust(max_len+1)))
+    for ch, process in PROCESS.items():
+        print("| {}  | {}|".format(ch, process.process_name.ljust(max_len+1)))
+
+    print(begin)
+
+
 def get_input(p):
     """
     Ask user to select a channel for a process.
@@ -134,16 +153,31 @@ def scan():
         ch = get_input(process)
         if ch:
             PROCESS[ch] = AC.AudioController(process[1])
-    print("\n0: Master Volume")
-    for ch, process in PROCESS.items():
-        print("{}: {}".format(ch, process.process_name))
+    print_list()
+
+def load_setting(file_name):
+    """
+    Load the settings from file, if file_name does not exist, then do a scan.
+
+    Args:
+        file_name (string): Name of the setting file.
+
+    """
+    if not Path(file_name).is_file():
+        return scan()
+    global PROCESS
+    with open(file_name) as file:
+        print("Loading from file \"{}\"\n".format(file_name))
+        data = json.load(file)
+        PROCESS = {int(k):AC.AudioController(v) for k,v in data.items()}
+    print_list()
 
 
 def main():
     device = get_device()
     if not device:
         return
-    scan()
+    load_setting("settings.json")
 
     device.open()
     device.set_raw_data_handler(data_handler)
